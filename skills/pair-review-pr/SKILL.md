@@ -1,7 +1,7 @@
 ---
 name: pair-review-pr
 description: 남이 올린 PR·브랜치를 에이전트와 페어로 리뷰하는 루프 — 워크트리로 받아 difit(로컬 diff 뷰어)에 띄우고, 에이전트가 읽기 순서 투어와 발견한 문제를 스레드로 미리 달고, 사용자가 코드 줄에 단 질문·메모에 주변 코드·호출부·테스트를 읽고 답글을 달며, 끝에 리뷰 초안을 파일로 낸다. 코드는 고치지 않고 게시는 사용자가 한다. "pair-review-pr", "이 PR 같이 봐줘", "PR 리뷰 도와줘", "PR 설명해줘", "이 PR 리뷰하자" 키워드, 그리고 남의 변경을 리뷰해야 하는 시점에 트리거. 내 브랜치를 PR 전에 고치면서 볼 때는 pair-review.
-argument-hint: "[pr-number|branch]"
+argument-hint: "[pr-number|url|branch]"
 license: MIT
 compatibility: Claude Code. git, gh, Node ≥ 21 (npx difit)
 ---

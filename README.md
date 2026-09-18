@@ -19,8 +19,10 @@ npx skills add socar-chel/pair-review -g
 설정은 없다. 설치 후 Claude Code에서 `/pair-review <base>` 또는 "PR 준비하자", `/pair-review-pr <n>` 또는 "이 PR 같이 봐줘"로
 호출한다. Node ≥ 21이면 difit은 `npx`로 알아서 받는다.
 
-갱신은 자동이 아니다 — 이 리포가 바뀌면 `npx skills update -g`로 받는다. 스킬은 에이전트가 내 권한으로 따르는 지시문이니,
-갱신 뒤 `~/.claude/skills/pair-review/`의 diff를 한 번 보는 것을 권한다.
+갱신은 자동이 아니다 — 이 리포가 바뀌면 `npx skills update -g`로 받는다. 단 `update`는 **이미 설치된 이름만** 다시 받으므로
+새 스킬이 추가된 릴리스는 못 가져온다 — `pair-review-shared`가 생긴 뒤 처음 갱신할 때는 위 `add` 명령을 한 번 더 실행한다
+(빠지면 두 스킬이 첫 단계에서 "shared가 없다"고 멈춘다). 스킬은 에이전트가 내 권한으로 따르는 지시문이니,
+갱신 뒤 `~/.claude/skills/pair-review*/`의 diff를 한 번 보는 것을 권한다.
 
 ## 한 라운드 — `pair-review`
 

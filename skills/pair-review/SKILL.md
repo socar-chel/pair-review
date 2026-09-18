@@ -3,7 +3,7 @@ name: pair-review
 description: 내 브랜치를 PR 올리기 전에 에이전트와 페어로 리뷰하는 루프 — 셀프리뷰 스레드를 difit(로컬 diff 뷰어)에 미리 달아 띄우고, 사용자가 브라우저에서 단 코멘트를 판단해 반영 커밋을 쌓고, 커밋으로 끊긴 스레드를 새 diff로 이월하며 OK가 나올 때까지 반복한다. "pair-review", "페어 리뷰", "PR 전 리뷰", "리뷰 루프", "PR 준비하자" 키워드, 그리고 PR을 만들기 전 사람 리뷰가 필요해진 시점에 트리거. 남이 올린 PR을 읽고 리뷰할 때는 pair-review-pr.
 argument-hint: "[base]"
 license: MIT
-compatibility: Claude Code. git, gh, Node ≥ 21 (npx difit)
+compatibility: Claude Code. git, Node ≥ 21 (npx difit)
 ---
 
 # pair-review — 내 브랜치를 PR 전에 페어로 리뷰
