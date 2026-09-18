@@ -1,6 +1,10 @@
 ---
 name: pair-review-shared
 description: pair-review·pair-review-pr 두 스킬의 공통부 — difit 띄우기·검증, 포트, URL 카드, 브라우저, 코멘트 규약, 수집 마커, 창 이상 대응과 스크립트. 직접 호출하지 않는다 — 두 스킬이 이 문서를 가리키고 scripts/를 쓴다.
+user-invocable: false
+disable-model-invocation: true
+license: MIT
+compatibility: Claude Code. git, gh, Node ≥ 21 (npx difit)
 ---
 
 # pair-review 공통 — difit 띄우기 · 검증 · 코멘트 규약 · 수집
@@ -9,9 +13,12 @@ description: pair-review·pair-review-pr 두 스킬의 공통부 — difit 띄�
 부분만 적고 여기를 가리킨다. 플래그·API는 difit v5.0.8~5.0.12에서 실측한 것이다 — difit 사용법이
 갱신되면 upstream `difit` 스킬의 SKILL.md를 먼저 읽고 여기를 맞춘다.
 
-`<scripts>`는 이 문서와 같은 디렉터리의 `scripts/`다. 두 스킬 모두 자기 SKILL.md 기준
-`../pair-review-shared/scripts`로 온다 — 전역(`~/.claude/skills/`)이든 프로젝트(`.claude/skills/`)든 형제 폴더라
-같은 상대경로가 선다. 절대경로를 적지 않는다.
+`<scripts>`는 이 문서와 같은 디렉터리의 `scripts/`다. 두 스킬은 `${CLAUDE_SKILL_DIR}/../pair-review-shared/scripts`로
+온다 — 전역(`~/.claude/skills/`)이든 프로젝트(`.claude/skills/`)든 형제 폴더라 같은 경로가 선다. 절대경로를 적지 않는다.
+
+## 차례
+
+명령 · 포트 · 띄우기 + 검증 · 카드 · 브라우저 · 코멘트 규약 · 수집과 처리 마커 · 창이 이상할 때 · 종료
 
 ## 명령
 
@@ -122,9 +129,9 @@ agent-browser open <url> --headed --restore "$AGENT_BROWSER_SESSION"
   가로챈다. 같은 세션의 모든 명령에 같은 `AGENT_BROWSER_SESSION`이 있어야 한다(export면 된다).
 - **`--restore`** 는 difit이 localStorage에 쌓는 "파일 봤음" 체크와 코멘트를 브라우저 재기동 너머로 보존해
   `~/.agent-browser/sessions/<이름>-<이름>.json`에 남긴다 — 서버·탭이 동시에 죽었을 때 코멘트를 되찾는 **세 번째
-  저장소**다(2026-09-12 실측, 스레드 23건 손실 없음). 키 끝의 모드(`-merge-base`)가 서버 기동 모드와 같아야 이어진다.
+  저장소**다(실측 — 스레드 23건 손실 없음). 키 끝의 모드(`-merge-base`)가 서버 기동 모드와 같아야 이어진다.
 - **`AGENT_BROWSER_AUTOSAVE_INTERVAL_MS=0`은 빼면 안 된다** — agent-browser 자체 변수(기본 30000ms)를 0으로 덮는
-  것이다. `--restore`의 30초 주기 자동 저장이 임시 탭을 열었다 닫는데, headed Chrome에 탭이 생기면 macOS가 창을 activate해 포커스를 뺏는다(2026-09-13 실측, origin이 다른 탭이
+  것이다. `--restore`의 30초 주기 자동 저장이 임시 탭을 열었다 닫는데, headed Chrome에 탭이 생기면 macOS가 창을 activate해 포커스를 뺏는다(실측 — origin이 다른 탭이
   둘 이상일 때 즉 스택 PR 탭 셋에서 난다). 0이면 저장 시점은 `close`와 사용자의 창 닫기뿐이다.
 - 스택 PR이면 세션 하나에 탭 셋: `open <url①>` → `tab new <url②>` → `tab new <url③>`.
 - `--profile`은 쓰지 않는다. `open`이 `Failed to connect`로 죽으면 한 번 재시도한다.

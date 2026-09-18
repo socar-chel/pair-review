@@ -1,6 +1,9 @@
 ---
 name: pair-review
 description: 내 브랜치를 PR 올리기 전에 에이전트와 페어로 리뷰하는 루프 — 셀프리뷰 스레드를 difit(로컬 diff 뷰어)에 미리 달아 띄우고, 사용자가 브라우저에서 단 코멘트를 판단해 반영 커밋을 쌓고, 커밋으로 끊긴 스레드를 새 diff로 이월하며 OK가 나올 때까지 반복한다. "pair-review", "페어 리뷰", "PR 전 리뷰", "리뷰 루프", "PR 준비하자" 키워드, 그리고 PR을 만들기 전 사람 리뷰가 필요해진 시점에 트리거. 남이 올린 PR을 읽고 리뷰할 때는 pair-review-pr.
+argument-hint: "[base]"
+license: MIT
+compatibility: Claude Code. git, gh, Node ≥ 21 (npx difit)
 ---
 
 # pair-review — 내 브랜치를 PR 전에 페어로 리뷰
@@ -8,7 +11,7 @@ description: 내 브랜치를 PR 올리기 전에 에이전트와 페어로 리�
 내 변경을 사람이 브라우저에서 보며 코멘트를 달고, 에이전트가 판단해 고치고, 다시 보는 **왕복 루프**다.
 화면은 difit(로컬 diff 뷰어)이고 difit은 고치지 않는다 — 루프 동안 고치는 것은 리뷰 대상 코드다.
 띄우기·검증·코멘트 규약·수집은 [../pair-review-shared/SKILL.md](../pair-review-shared/SKILL.md)에 있다(이하 COMMON). 이 문서는 그 위의
-루프만 적는다. `<scripts>`는 이 파일 기준 `../pair-review-shared/scripts`다. 그 폴더가 없으면 `pair-review-shared`가
+루프만 적는다. `<scripts>`는 `${CLAUDE_SKILL_DIR}/../pair-review-shared/scripts`다. 그 폴더가 없으면 `pair-review-shared`가
 설치되지 않은 것이다 — `npx skills add socar-chel/pair-review -g -s pair-review-shared`를 안내하고 진행하지 않는다.
 
 내 PR이 이미 올라간 뒤라도 **고치면서 볼 거면 이 스킬**이다(HEAD vs base 루프라 커밋이 PR 브랜치에 쌓일
