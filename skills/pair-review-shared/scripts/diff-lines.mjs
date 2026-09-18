@@ -69,3 +69,18 @@ export function addedLinesByFile(diff) {
   }
   return out
 }
+
+// 새 지적의 앵커용 — 가장 가까운 + 줄(앞뒤 중 거리가 짧은 쪽, 같으면 뒤). carry 의 reanchor 와 달리
+// 파일 첫 줄로 폴백하지 않는다: 이월은 스레드를 살리는 것이 목적이지만 새 지적이 파일 맨 위로 튀면
+// "그 줄에 대한 지적"으로 읽힌다. 호출 측이 distance 를 보고 시드할지 정한다.
+export function nearestAdded(added, line) {
+  if (!added || added.length === 0) return null
+  const lines = added.map((a) => (typeof a === 'number' ? a : a.line))
+  if (lines.includes(line)) return { line, distance: 0 }
+  let best = null
+  for (const n of lines) {
+    const d = Math.abs(n - line)
+    if (best === null || d < best.distance || (d === best.distance && n > best.line)) best = { line: n, distance: d }
+  }
+  return best
+}

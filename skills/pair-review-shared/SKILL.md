@@ -19,7 +19,7 @@ compatibility: Claude Code. git, gh, Node ≥ 21 (npx difit)
 
 ## 차례
 
-명령 · 포트 · 띄우기 + 검증 · 카드 · 브라우저 · 코멘트 규약 · 수집과 처리 마커 · 창이 이상할 때 · 종료
+명령 · 포트 · 띄우기 + 검증 · 카드 · 브라우저 · 셀프리뷰 — 두 트랙 · 코멘트 규약 · 수집과 처리 마커 · 창이 이상할 때 · 종료
 
 ## 명령
 
@@ -138,6 +138,62 @@ agent-browser open <url> --headed --restore "$AGENT_BROWSER_SESSION"
 - `--profile`은 쓰지 않는다. `open`이 `Failed to connect`로 죽으면 한 번 재시도한다.
 - **창 위치·포커스는 이 절차가 정하지 않는다.** 기본은 주 모니터에 뜨고 포커스를 가져간다. 보조 모니터 배치·포커스
   가드 같은 편의는 각자의 환경(래퍼 등)이 얹는다 — 여기 적지 않는다.
+
+## 셀프리뷰 — 두 트랙
+
+두 스킬의 시드(`pair-review` 1단계 · `pair-review-pr` 2단계 지적)는 여기서 만든다. **diff는 한 번 읽고 두 렌즈로
+본다** — 트랙 A는 결함, 트랙 B는 기준 대조. 실측(같은 19파일 diff): 두 트랙이 잡은 것이 하나도 겹치지 않았다 —
+A는 문서 속 복구 명령의 스코프 오류를, B는 빠진 테스트를 잡았다. 한 렌즈로는 둘 중 하나가 빠진다.
+
+### 트랙 A — `/code-review`
+
+`/code-review <effort> <range>` — effort 기본 `medium`(확신 높은 것만 — 시드는 적고 맞아야 한다), range는
+`origin/<base>...HEAD`(`pair-review`) 또는 PR 번호(`pair-review-pr`). 결과는 findings 목록 — 항목마다 `file`·`line`·
+`summary`·`failure_scenario`·`category`. 하네스에 따라 두 모양으로 돈다:
+
+| 하네스 | 동작 | 할 일 |
+| --- | --- | --- |
+| 터미널 | 백그라운드 포크 — 별도 문맥에서 돌고 findings가 알림으로 온다 | 트랙 B를 먼저 하고 알림을 기다린다 |
+| 데스크톱 앱(Agent SDK) | **인라인** — 리뷰 지시문이 이 문맥에 들어오고 이 에이전트가 직접 수행한다 | 그 자리에서 수행. 트랙 B와 같은 판단 주체라 **독립성이 없다** — 아래 반박 패스가 유일한 오탐 필터다 |
+
+신호등은 `category`로 기계 매핑하지 않는다 — 두 findings가 다 `correctness`였는데 문서 결함이라 🟡가 맞았다.
+**`failure_scenario`가 머지되면 안 되는 수준이면 🔴, 아니면 🟡.** 본문: `summary` 첫 문장 → `failure_scenario` 문단 →
+마지막 줄 `출처: /code-review <effort>`.
+
+### 트랙 B — standards sources
+
+있는 것만, 이 순서로 읽고 그 기준으로 diff를 검토한다:
+
+1. `<repo>/REVIEW.md` — 팀의 리뷰 전용 기준(Claude Code 호스티드 Code Review와 같은 파일)
+2. `<repo>/CONTRIBUTING.md`
+3. `bash <scripts>/difit-checklist.sh` — 배정 파일 `~/.config/pair-review/checklist`(또는 `$XDG_CONFIG_HOME/pair-review/checklist`,
+   `DIFIT_CHECKLIST_FILE`)에 한 줄당 경로 하나. 개인 체크리스트를 여기서 잇는다. 없으면(rc 3) 묻지 않고 건너뛴다 —
+   `browser`와 달리 선택 사항이다. 적힌 파일이 없으면(rc 4) 배정 파일을 고치라고 알린다.
+
+하나도 없으면 모델 판단으로 검토한다 — 이 트랙이 비는 것이지 셀프리뷰가 비는 것이 아니다. 팀 룰이 `CLAUDE.md`·
+`.claude/rules/`에 있으면 여기서 다시 읽지 않는다 — 세션이 이미 로드했고 트랙 A(`/code-review`)도 그것을 읽는다.
+
+- **스펙 축** — 호출 측이 `--spec <파일|URL>`을 넘겼을 때만(`--spec pr`이면 PR 본문 `gh pr view <n> --json body -q .body`): 스펙이 요구한 것 중 빠진 것 · 요구하지 않은 것(scope creep) ·
+  구현이 어긋난 것. 없으면 "스펙 없음"으로 건너뛴다(묻지 않는다). 기준 대조와 스펙 대조는 **합치지 않고 나란히** 보고한다 —
+  기준은 다 지켰는데 엉뚱한 것을 만든 diff와, 요구는 다 맞췄는데 컨벤션을 깬 diff는 서로를 가린다.
+- **규모** — 변경 파일 20개 이상 또는 +1000줄이면 관점을 나눠 서브에이전트로 병렬 검토한다.
+- 본문 마지막 줄 `출처: REVIEW.md 「…」` / `CHECKLIST 「N. …」` — 리뷰어가 기준의 출처를 바로 찾게.
+
+### 반박 → 병합 → 앵커
+
+1. **반박 패스 1회, 두 트랙 전체에** — 항목마다 코드 근거로 반박을 시도하고 반박되면 버린다. 실측: 트랙 B 후보 3건 중 2건이
+   여기서 떨어졌다(표기 차이는 모순이 아니었고, 분량 지적은 취향이었다).
+2. **병합** — 같은 `file:line`은 하나로. **같은 원인이 여러 파일에 있으면 대표 한 곳에 스레드**, 나머지 위치는 본문에 열거한다
+   (실측: 트랙 A 2건이 한 결정의 두 사본이었다).
+3. **🟡 상한 5** — 넘으면 상위 5개만 시드하고 나머지는 채팅에 한 줄씩. 🔴는 상한이 없다.
+4. **앵커** — findings를 `{path, line, …}` JSONL로 모아 스냅한다:
+   ```bash
+   node <scripts>/snap-anchor.mjs origin/<base>...HEAD < findings.jsonl > anchored.jsonl   # --max-distance 30
+   ```
+   유효한 `+` 줄은 유지, 아니면 **가장 가까운** `+` 줄(stderr `moved:`). `far:`(30줄 넘게 멂)·`skip:`(파일에 `+` 줄 없음)은
+   시드하지 않고 채팅으로 전한다 — 새 지적이 파일 맨 위로 튀면 "그 줄에 대한 지적"으로 읽힌다(이월용 `carry-comments`의
+   폴백과 다른 이유). 삭제된 줄에 대한 지적은 `side: old` + 옛 줄 번호로 그대로 둔다.
+5. `anchored.jsonl`을 「코멘트 규약」 페이로드로 바꿔 `comments.json`으로 저장한다.
 
 ## 코멘트 규약
 

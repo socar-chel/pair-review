@@ -1,7 +1,7 @@
 ---
 name: pair-review
 description: 내 브랜치를 PR 올리기 전에 에이전트와 페어로 리뷰하는 루프 — 셀프리뷰 스레드를 difit(로컬 diff 뷰어)에 미리 달아 띄우고, 사용자가 브라우저에서 단 코멘트를 판단해 반영 커밋을 쌓고, 커밋으로 끊긴 스레드를 새 diff로 이월하며 OK가 나올 때까지 반복한다. "pair-review", "페어 리뷰", "PR 전 리뷰", "리뷰 루프", "PR 준비하자" 키워드, 그리고 PR을 만들기 전 사람 리뷰가 필요해진 시점에 트리거. 남이 올린 PR을 읽고 리뷰할 때는 pair-review-pr.
-argument-hint: "[base]"
+argument-hint: "[base] [--effort level] [--spec path]"
 license: MIT
 compatibility: Claude Code. git, Node ≥ 21 (npx difit)
 ---
@@ -35,12 +35,15 @@ compatibility: Claude Code. git, Node ≥ 21 (npx difit)
 
 ## 1단계 — 셀프리뷰 시드
 
-1. `git diff origin/<base>...HEAD`와 `git log origin/<base>..HEAD --oneline`으로 변경을 검토한다.
-   자잘한 문제(오타·디버그 출력·명백한 버그)는 바로 수정 후 커밋한다.
+COMMON 「셀프리뷰 — 두 트랙」대로 — diff(`git diff origin/<base>...HEAD` · `git log origin/<base>..HEAD --oneline`)를
+한 번 읽고 트랙 A(`/code-review <effort> origin/<base>...HEAD`)와 트랙 B(standards sources · `--spec`이 있으면 스펙 축)로
+본 뒤 반박 → 병합 → `snap-anchor.mjs`.
+
+1. 자잘한 문제(오타·디버그 출력·명백한 버그)는 스레드로 만들지 말고 **바로 수정 후 커밋**한다.
 2. 판단이 갈리는 문제는 수정하지 말고 **스레드로 모은다** — 채팅에만 쓰지 않는다. 사용자가 diff를 보는
-   자리에 지적이 붙어 있어야 화면과 채팅을 번갈아 보지 않는다. 본문은 🔴🟡🟢 신호등, 앵커는
-   `first-added-line.mjs` (COMMON 「코멘트 규약」).
-3. 페이로드를 `comments.json`으로 저장한다.
+   자리에 지적이 붙어 있어야 화면과 채팅을 번갈아 보지 않는다. 본문은 🔴🟡🟢 신호등 + 출처 줄(COMMON 「코멘트 규약」).
+3. 페이로드를 `comments.json`으로 저장한다. 트랙 A가 포크로 돌고 있으면 알림을 받은 뒤에 저장한다 — 시드 없이
+   띄웠다가 나중에 얹으면 사용자가 빈 화면을 먼저 본다.
 
 ## 2단계 — 띄우기
 
@@ -127,4 +130,5 @@ for p in $P $((P+1)) $((P+2)); do curl -s localhost:$p/api/diff | jq -c '{p:'$p'
 
 ## 인자
 
-$ARGUMENTS가 있으면 base 브랜치 지정으로 해석한다: $ARGUMENTS
+$ARGUMENTS: `[base] [--effort low|medium|high] [--spec <파일|URL>]` — base는 기본 브랜치 지정(없으면 묻는다), `--effort`는
+트랙 A의 `/code-review` 수준(기본 `medium`), `--spec`은 트랙 B 스펙 축의 소스(없으면 스펙 축 생략): $ARGUMENTS

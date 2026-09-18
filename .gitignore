@@ -1,2 +1,10 @@
 .DS_Store
 node_modules/
+
+# pair-review 루프 작업 파일 (리포 루트에 생긴다)
+comments.json
+old.json
+new.json
+answers.json
+findings.jsonl
+anchored.jsonl

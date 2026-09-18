@@ -1,7 +1,7 @@
 ---
 name: pair-review-pr
 description: 남이 올린 PR·브랜치를 에이전트와 페어로 리뷰하는 루프 — 워크트리로 받아 difit(로컬 diff 뷰어)에 띄우고, 에이전트가 읽기 순서 투어와 발견한 문제를 스레드로 미리 달고, 사용자가 코드 줄에 단 질문·메모에 주변 코드·호출부·테스트를 읽고 답글을 달며, 끝에 리뷰 초안을 파일로 낸다. 코드는 고치지 않고 게시는 사용자가 한다. "pair-review-pr", "이 PR 같이 봐줘", "PR 리뷰 도와줘", "PR 설명해줘", "이 PR 리뷰하자" 키워드, 그리고 남의 변경을 리뷰해야 하는 시점에 트리거. 내 브랜치를 PR 전에 고치면서 볼 때는 pair-review.
-argument-hint: "[pr-number|url|branch]"
+argument-hint: "[pr-number|url|branch] [--effort level] [--spec path|pr]"
 license: MIT
 compatibility: Claude Code. git, gh, Node ≥ 21 (npx difit)
 ---
@@ -60,14 +60,15 @@ COMMON 「띄우기 + 검증」대로 `/api/diff`가 git과 맞을 때만 연다
 
 diff를 **먼저 읽는다** — 사용자가 화면을 열기 전에 에이전트가 한 바퀴 돈 상태여야 한다.
 
-1. **지적 (항상)** — 읽으면서 발견한 문제를 🔴🟡 스레드로 단다 (COMMON 「코멘트 규약」). 버그·경계
-   조건·테스트 누락·호출부와의 불일치처럼 **코드를 열어 확인한 것만** 단다. 스타일·취향은 달지 않는다 —
-   그건 사용자가 판단할 몫이고, 스레드가 많으면 사용자가 묻고 싶은 흐름이 끊긴다.
+1. **지적 (항상)** — COMMON 「셀프리뷰 — 두 트랙」대로: 트랙 A `/code-review <effort> <n>`(PR 번호) + 트랙 B
+   standards sources(`--spec`이 있으면 스펙 축) → 반박 → 병합 → 🔴🟡 스레드. 버그·경계 조건·테스트 누락·호출부와의
+   불일치처럼 **코드를 열어 확인한 것만** 단다 — 트랙 A findings도 `failure_scenario`를 본문에 옮겨 근거를 남긴다.
+   스타일·취향은 달지 않는다 — 그건 사용자가 판단할 몫이고, 스레드가 많으면 사용자가 묻고 싶은 흐름이 끊긴다.
 2. **투어 (조건부)** — 변경 파일이 **5개 이상이면** 🟢 스레드 3~5개로 읽는 순서를 잡아 준다: 순서 번호,
    "이 파일이 나머지의 어휘", 호출 경로가 바뀌는 지점, 테스트가 덮는 범위. 5개 미만이면 안내 스레드는 소음이다.
-3. 앵커는 `first-added-line.mjs`로, 올리기는 `comment add`로:
+3. 앵커는 지적이면 `snap-anchor.mjs`(두 트랙 절 4번), 투어면 `first-added-line.mjs`로. 올리기는 `comment add`로:
    ```bash
-   node <scripts>/first-added-line.mjs origin/<base>...HEAD
+   node <scripts>/first-added-line.mjs origin/<base>...HEAD        # 투어 스레드의 파일별 첫 + 줄
    npx difit comment add --port $P "$(cat seed.json)"
    ```
 4. 시드가 올라갔으면 카드(COMMON 「카드」)와 URL을 준다 — `difit-banner.sh --port $P --base origin/<base>
@@ -137,4 +138,5 @@ node <scripts>/carry-comments.mjs old.json origin/<base>...HEAD > new.json && np
 
 ## 인자
 
-$ARGUMENTS는 PR 번호·URL 또는 브랜치명이다: $ARGUMENTS
+$ARGUMENTS: `<pr-number|url|branch> [--effort low|medium|high] [--spec <파일|URL>]` — `--effort`는 트랙 A의 `/code-review`
+수준(기본 `medium`), `--spec`은 트랙 B 스펙 축의 소스(없으면 생략. PR 본문을 스펙으로 쓰려면 `--spec pr`): $ARGUMENTS
