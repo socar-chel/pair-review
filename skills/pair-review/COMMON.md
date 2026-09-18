@@ -61,7 +61,7 @@ git diff origin/<base>...HEAD --stat | tail -1
 - 같은 대상의 서버가 이미 떠 있으면(`<scripts>/difit-health-check.sh`로 본다) 새로 띄우지 않는다 — 스레드는
   `comment add`로 얹는다.
 - 실행 자체가 실패하면 폴백: 사용자에게 difit UI의 "Copy All Prompts" 붙여넣기를 안내한다.
-- 브라우저는 사용자가 열어도 되고 에이전트가 열어도 된다 — `--keep-alive` 덕에 탭을 닫아도 서버는 산다.
+- 검증이 끝나면 「카드」를 주고 「브라우저 — 어떻게 여나」대로 연다. `--keep-alive` 덕에 탭을 닫아도 서버는 산다.
 
 ## 카드 — URL은 항상 이 표와 함께 준다
 
@@ -88,6 +88,41 @@ bash <scripts>/difit-banner.sh --port <포트> --base origin/<base> --summary "<
   읽으면 0으로 찍지 않고 실패한다 — "시드 없음"과 "경로 잘못 줌"이 같은 카드가 되면 안 된다.
 - `--port`에는 출력 JSON의 **실제** 포트를 준다(폴백됐으면 그 값). `pair-review-pr`은 `--pr <n>`을 더해
   PR 번호·제목 줄을 넣는다. 스택 PR처럼 창이 여럿이면 창마다 카드 하나.
+
+## 브라우저 — 어떻게 여나
+
+`bash <scripts>/difit-browser.sh`가 배정 파일 `~/.config/pair-review/browser`(또는 `$XDG_CONFIG_HOME/pair-review/browser`,
+`DIFIT_BROWSER_FILE`) 한 줄을 읽는다. 값은 둘뿐이다:
+
+| 값 | 동작 |
+| --- | --- |
+| `link` | URL만 안내한다. 사용자가 링크를 눌러 자기 기본 브라우저로 연다. 종료는 `kill <pid>`뿐 |
+| `agent-browser` | 에이전트가 agent-browser headed 창으로 연다(아래 절차). 종료 때 창도 닫는다 |
+
+파일이 없으면(종료 코드 3) **한 번만** 두 선택지를 묻고 답을 저장한다 — `mkdir -p ~/.config/pair-review &&
+echo <값> > ~/.config/pair-review/browser`. 이후 라운드·세션에서는 다시 묻지 않는다(사람·머신에 붙는 선호지
+리뷰 건마다 갈리는 결정이 아니다). 값이 이상하면(종료 코드 2) 고치라고 알리고 그 라운드는 `link`로 간다.
+
+### `agent-browser` 절차
+
+```bash
+export AGENT_BROWSER_SESSION="$(agent-browser session id --scope worktree --prefix difit)"
+export AGENT_BROWSER_AUTOSAVE_INTERVAL_MS=0
+agent-browser open <url> --headed --restore "$AGENT_BROWSER_SESSION"
+```
+
+- **세션은 워크트리별 이름으로** — 기본(무명) 세션은 머신의 모든 에이전트가 공유하는 브라우저 하나라 남의 탭을
+  가로챈다. 같은 세션의 모든 명령에 같은 `AGENT_BROWSER_SESSION`이 있어야 한다(export면 된다).
+- **`--restore`** 는 difit이 localStorage에 쌓는 "파일 봤음" 체크와 코멘트를 브라우저 재기동 너머로 보존해
+  `~/.agent-browser/sessions/<이름>-<이름>.json`에 남긴다 — 서버·탭이 동시에 죽었을 때 코멘트를 되찾는 **세 번째
+  저장소**다(2026-09-12 실측, 스레드 23건 손실 없음). 키 끝의 모드(`-merge-base`)가 서버 기동 모드와 같아야 이어진다.
+- **`AGENT_BROWSER_AUTOSAVE_INTERVAL_MS=0`은 빼면 안 된다** — agent-browser 자체 변수(기본 30000ms)를 0으로 덮는
+  것이다. `--restore`의 30초 주기 자동 저장이 임시 탭을 열었다 닫는데, headed Chrome에 탭이 생기면 macOS가 창을 activate해 포커스를 뺏는다(2026-09-13 실측, origin이 다른 탭이
+  둘 이상일 때 즉 스택 PR 탭 셋에서 난다). 0이면 저장 시점은 `close`와 사용자의 창 닫기뿐이다.
+- 스택 PR이면 세션 하나에 탭 셋: `open <url①>` → `tab new <url②>` → `tab new <url③>`.
+- `--profile`은 쓰지 않는다. `open`이 `Failed to connect`로 죽으면 한 번 재시도한다.
+- **창 위치·포커스는 이 절차가 정하지 않는다.** 기본은 주 모니터에 뜨고 포커스를 가져간다. 보조 모니터 배치·포커스
+  가드 같은 편의는 각자의 환경(래퍼 등)이 얹는다 — 여기 적지 않는다.
 
 ## 코멘트 규약
 
@@ -159,4 +194,13 @@ node <scripts>/pending-threads.mjs < threads.json      # {id, filePath, line, qu
 
 ## 종료
 
-`kill <pid>`. 죽이기 전에 `comment get`으로 마지막 사본을 남긴다.
+죽이기 전에 `comment get`으로 마지막 사본을 남긴다. 그다음 `kill <pid>`.
+
+`agent-browser`로 열었으면 창도 닫는다 — headed 창은 유휴 자동 종료가 없어 안 닫으면 쌓인다. 사용자가 눈으로
+확인할 것이 남았으면 "확인 후 닫아 달라"고 말하고 넘긴다. 에이전트가 닫을 때:
+
+1. `agent-browser --session "$AGENT_BROWSER_SESSION" close` — **창이 살아 있을 때만.** 창이 이미 사라진 세션에
+   부르면 데몬이 응답을 못 받아 무한 대기한다. 그때는 `kill $(cat ~/.agent-browser/<세션>.pid)`.
+2. 생존 확인으로 그 세션에 다른 명령(`get cdp-url` 등)을 보내지 않는다 — 조회조차 브라우저를 되살린다.
+   프로세스로만 본다: `pgrep -f agent-browser-chrome`.
+3. `close`는 현재 세션만 닫는다. 스택으로 여러 세션을 띄웠으면 세션별로.

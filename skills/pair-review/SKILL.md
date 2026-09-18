@@ -44,9 +44,10 @@ COMMON 「띄우기 + 검증」 그대로 — `HEAD origin/<base> --merge-base -
 --comment "$(cat comments.json)"`. `/api/diff`가 git과 맞을 때만 URL을 준다 — COMMON 「카드」의
 `difit-banner.sh --port <포트> --base origin/<base> --summary "<한 줄>" --comments comments.json` 출력을 그대로 붙여서.
 
-## 3단계 — 코멘트 대기
+## 3단계 — 열기 · 코멘트 대기
 
-카드 아래에: "브라우저에서 코멘트를 달고, 끝나면 알려주세요."
+COMMON 「브라우저 — 어떻게 여나」대로 연다 — 배정 파일이 `link`면 카드의 URL만, `agent-browser`면 에이전트가
+headed 창을 띄운다(미설정이면 여기서 한 번 묻고 저장). 그다음 카드 아래에: "코멘트를 달고, 끝나면 알려주세요."
 
 ## 4단계 — 커밋 전 수집 (반드시 커밋 전)
 
@@ -97,7 +98,8 @@ node <scripts>/pending-threads.mjs < old.json
 
 ## 7단계 — 종료
 
-요약(총 코멘트 수, 반영/역제안/보류, 최종 커밋 목록)을 제시하고 `kill <pid>`로 서버를 끝낸다.
+요약(총 코멘트 수, 반영/역제안/보류, 최종 커밋 목록)을 제시하고 COMMON 「종료」대로 서버를 끝낸다
+(`agent-browser`로 열었으면 창도 닫는다).
 이후 PR 생성은 이 스킬의 범위 밖이다 — 프로젝트의 PR 생성 절차(`gh pr create --draft` 등)로 넘긴다.
 
 ## 스택 PR 모드 — 브랜치 여러 개를 한 워크트리에서 동시에

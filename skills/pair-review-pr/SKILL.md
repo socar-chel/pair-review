@@ -43,8 +43,8 @@ P=$(( $(bash <scripts>/difit-port.sh) + 5 ))     # 같은 레포의 pair-review 
 npx difit HEAD origin/<base> --merge-base --background --keep-alive --port $P
 ```
 
-COMMON 「띄우기 + 검증」대로 `/api/diff`가 git과 맞을 때만 사용자에게 URL을 준다 — 단 시드(2단계)를 올린
-**뒤에**, COMMON 「카드」와 함께.
+COMMON 「띄우기 + 검증」대로 `/api/diff`가 git과 맞을 때만 연다 — 단 시드(2단계)를 올린 **뒤에**, COMMON 「카드」와
+함께. 여는 방식은 COMMON 「브라우저 — 어떻게 여나」(배정 파일 `link` | `agent-browser`, 미설정이면 한 번 묻고 저장).
 
 **대안 — `--pr <url>` 모드**: `npx difit --pr https://github.com/<o>/<r>/pull/<n> --background --keep-alive --port $P`.
 체크아웃 없이 `gh pr diff`로 패치를 받고 **PR의 미해결 리뷰 스레드를 시작 코멘트로 임포트**한다 — 팀원
@@ -121,7 +121,7 @@ node <scripts>/carry-comments.mjs old.json origin/<base>...HEAD > new.json && np
    - 판정 제안 — approve / request changes / comment 중 하나와 이유 한 줄. 결정은 사용자가 한다.
    여기까지가 이 스킬의 일이다. **게시는 하지 않는다.** 원하면 `gh pr review <n> --comment --body-file <초안>`
    한 줄을 안내한다(인라인 코멘트로 올리려면 사용자의 GitHub 리뷰 절차로).
-2. `kill <pid>`. 워크트리는 사용자에게 확인하고 `git worktree remove`.
+2. COMMON 「종료」대로 서버를 끝낸다(`agent-browser`로 열었으면 창도). 워크트리는 사용자에게 확인하고 `git worktree remove`.
 
 ## 답변 원칙
 
