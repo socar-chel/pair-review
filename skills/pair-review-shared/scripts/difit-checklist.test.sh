@@ -14,6 +14,9 @@ touch "$T/a.md"; printf '# 개인 체크리스트\n%s\n\n%s   \n' "$T/a.md" "$T/
 out="$(DIFIT_CHECKLIST_FILE="$T/cl" bash "$SC" 2>"$T/err")"; rc=$?
 check "rc" 0 $rc; check "stdout" "$T/a.md" "$out"; check "stderr" "missing: $T/gone.md" "$(cat "$T/err")"
 
+echo "== 마지막 줄에 개행이 없어도 읽는다"
+printf '%s' "$T/a.md" > "$T/cl3"; out="$(DIFIT_CHECKLIST_FILE="$T/cl3" bash "$SC" 2>/dev/null)"; check "개행 없음" "$T/a.md" "$out"
+
 echo "== 전부 없음 → rc 4"
 printf '%s\n' "$T/gone.md" > "$T/cl2"; DIFIT_CHECKLIST_FILE="$T/cl2" bash "$SC" >/dev/null 2>&1; check "rc" 4 $?
 

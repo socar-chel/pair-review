@@ -7,7 +7,7 @@ set -euo pipefail
 file="${DIFIT_CHECKLIST_FILE:-${XDG_CONFIG_HOME:-$HOME/.config}/pair-review/checklist}"
 [ -f "$file" ] || { echo "unset" >&2; exit 3; }
 found=0; missing=()
-while IFS= read -r raw; do
+while IFS= read -r raw || [ -n "$raw" ]; do   # 마지막 줄에 개행이 없어도 읽는다
   line="${raw%%#*}"; line="$(printf '%s' "$line" | sed -E 's/^[[:space:]]+|[[:space:]]+$//g')"
   [ -n "$line" ] || continue
   path="${line/#\~/$HOME}"

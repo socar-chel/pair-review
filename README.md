@@ -134,6 +134,7 @@ bash skills/pair-review-shared/scripts/difit-port.test.sh
 bash skills/pair-review-shared/scripts/difit-banner.test.sh
 bash skills/pair-review-shared/scripts/difit-browser.test.sh
 bash skills/pair-review-shared/scripts/difit-checklist.test.sh
+bash skills/pair-review-shared/scripts/snap-anchor.cli.test.sh
 ```
 
 ## 선택 사항

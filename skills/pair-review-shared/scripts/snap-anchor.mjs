@@ -27,9 +27,10 @@ export function snap(findings, added, { maxDistance = 30 } = {}) {
 
 if (process.argv[1] && import.meta.url.endsWith(process.argv[1].split('/').pop())) {
   const args = process.argv.slice(2)
-  const range = args.find((a) => !a.startsWith('--'))
   const mdIdx = args.indexOf('--max-distance')
+  // 30줄 ≈ 화면 한 장 — 그보다 멀면 리뷰어가 스레드와 지적 대상을 한눈에 잇지 못한다
   const maxDistance = mdIdx >= 0 ? Number(args[mdIdx + 1]) : 30
+  const range = args.find((a, i) => !a.startsWith('--') && i !== mdIdx + 1)   // 옵션 값은 range 가 아니다
   if (!range) { console.error('usage: snap-anchor.mjs <range> [--max-distance N] < findings.jsonl'); process.exit(2) }
   const added = addedLinesByFile(gitDiff([range]))
   const input = await new Promise((resolve) => { let d = ''; process.stdin.on('data', (c) => (d += c)).on('end', () => resolve(d)) })
