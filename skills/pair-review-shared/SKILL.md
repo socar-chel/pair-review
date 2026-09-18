@@ -13,8 +13,9 @@ compatibility: Claude Code. git, gh, Node ≥ 21 (npx difit)
 부분만 적고 여기를 가리킨다. 플래그·API는 difit v5.0.8~5.0.12에서 실측한 것이다 — difit 사용법이
 갱신되면 upstream `difit` 스킬의 SKILL.md를 먼저 읽고 여기를 맞춘다.
 
-`<scripts>`는 이 문서와 같은 디렉터리의 `scripts/`다. 두 스킬은 `${CLAUDE_SKILL_DIR}/../pair-review-shared/scripts`로
-온다 — 전역(`~/.claude/skills/`)이든 프로젝트(`.claude/skills/`)든 형제 폴더라 같은 경로가 선다. 절대경로를 적지 않는다.
+`<scripts>`는 이 문서와 같은 디렉터리의 `scripts/`다. 두 스킬의 SKILL.md는 `${CLAUDE_SKILL_DIR}/../pair-review-shared/scripts`로
+온다 — 그 변수는 **각 스킬이 호출될 때 자기 SKILL.md의 폴더로 치환**되고, 이 문서는 스킬로 호출되지 않아 여기서는 치환되지
+않는 표기일 뿐이다. 전역(`~/.claude/skills/`)이든 프로젝트(`.claude/skills/`)든 형제 폴더라 같은 경로가 선다. 절대경로를 적지 않는다.
 
 ## 차례
 
