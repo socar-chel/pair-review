@@ -56,6 +56,7 @@ npx skills add socar-chel/pair-review -g
 | 브라우저 창을 닫으면 서버와 메모리의 코멘트가 함께 죽는다 | `--keep-alive` — 탭을 닫아도 서버는 산다 |
 | 포트가 조용히 +1로 밀려 옛 탭을 보게 된다 | 레포 이름에서 포트를 계산하고(`difit-port.sh`), 실제 포트를 JSON에서 읽는다 |
 | 에이전트가 단 스레드가 엉뚱한 줄에 붙거나 안 보인다 | `first-added-line.mjs`로 `+` 줄만 앵커로 쓴다 |
+| 창을 여럿 띄우면 어느 레포·브랜치·base인지 화면만 보고는 모른다 | URL을 카드(`difit-banner.sh` — 작업 요약 · 리포 · 브랜치 → base · 변경량 · 시드)와 함께 줘 대화창이 제목 표시줄이 된다 |
 | 같은 스레드를 라운드마다 다시 처리하거나, 처리한 것을 놓친다 | "마지막 메시지가 내 것인가"를 마커로 쓴다(`pending-threads.mjs`) — 이월 스레드는 답변을 이어 붙여 에이전트 저자로 다시 올린다 |
 
 ## 반대 방향 — `pair-review-pr`
@@ -107,6 +108,7 @@ skills/
 │       ├── carry-comments.mjs    커밋으로 끊긴 스레드를 새 diff로 이월 (+ 스레드별 답변 잇기)
 │       ├── pending-threads.mjs   마지막 메시지가 사용자 것인 스레드만 — 답할 질문 목록
 │       ├── difit-port.sh         origin 레포명 → 5100~5890 사이 10의 배수 포트 (배정 파일이 우선)
+│       ├── difit-banner.sh       URL과 함께 붙이는 카드 — 작업 요약 · 리포 · 브랜치 → base · 변경량 · 시드 개수
 │       └── difit-health-check.sh 창이 이상할 때 프로세스 · 포트별 /api/diff
 └── pair-review-pr/
     └── SKILL.md                  남의 PR 루프 (워크트리 → 지적·투어 시드 → 질문/메모 답글 → 리뷰 초안)
@@ -115,6 +117,7 @@ skills/
 ```bash
 node --test skills/pair-review/scripts/*.test.mjs
 bash skills/pair-review/scripts/difit-port.test.sh
+bash skills/pair-review/scripts/difit-banner.test.sh
 ```
 
 ## 선택 사항

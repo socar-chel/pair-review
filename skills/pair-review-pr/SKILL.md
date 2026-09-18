@@ -43,7 +43,9 @@ P=$(( $(bash <scripts>/difit-port.sh) + 5 ))     # 같은 레포의 pair-review 
 npx difit HEAD origin/<base> --merge-base --background --keep-alive --port $P
 ```
 
-COMMON 「띄우기 + 검증」대로 `/api/diff`가 git과 맞을 때만 사용자에게 URL을 준다.
+COMMON 「띄우기 + 검증」대로 `/api/diff`가 git과 맞을 때만 사용자에게 URL을 준다 — COMMON 「카드」의
+`difit-banner.sh --port $P --base origin/<base> --pr <n> --summary "<한 줄>" --comments comments.json` 출력을 그대로 붙여서
+(브랜치명으로 받은 경우 `--pr` 생략).
 
 **대안 — `--pr <url>` 모드**: `npx difit --pr https://github.com/<o>/<r>/pull/<n> --background --keep-alive --port $P`.
 체크아웃 없이 `gh pr diff`로 패치를 받고 **PR의 미해결 리뷰 스레드를 시작 코멘트로 임포트**한다 — 팀원
