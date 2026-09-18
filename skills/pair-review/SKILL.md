@@ -41,11 +41,12 @@ description: 내 브랜치를 PR 올리기 전에 에이전트와 페어로 리�
 ## 2단계 — 띄우기
 
 COMMON 「띄우기 + 검증」 그대로 — `HEAD origin/<base> --merge-base --background --keep-alive --port <포트>
---comment "$(cat comments.json)"`. `/api/diff`가 git과 맞을 때만 URL을 준다.
+--comment "$(cat comments.json)"`. `/api/diff`가 git과 맞을 때만 URL을 준다 — COMMON 「카드」의
+`difit-banner.sh --port <포트> --base origin/<base> --summary "<한 줄>" --comments comments.json` 출력을 그대로 붙여서.
 
 ## 3단계 — 코멘트 대기
 
-사용자에게 URL과 함께: "브라우저에서 코멘트를 달고, 끝나면 알려주세요."
+카드 아래에: "브라우저에서 코멘트를 달고, 끝나면 알려주세요."
 
 ## 4단계 — 커밋 전 수집 (반드시 커밋 전)
 
