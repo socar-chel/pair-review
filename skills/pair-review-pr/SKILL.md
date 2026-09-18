@@ -13,8 +13,9 @@ description: 남이 올린 PR·브랜치를 에이전트와 페어로 리뷰하�
 - **게시하지 않는다.** 남의 PR에 글을 남기는 것은 되돌리기 어려운 외부 행위라 초안까지만 만들고 사용자가 올린다.
 - 커밋이 없으니 코멘트 세션이 바뀌지 않아 `type: reply`가 그대로 이어진다 — 이월은 PR에 새 커밋이 올라올 때만.
 
-띄우기·검증·코멘트 규약·수집은 [../pair-review/COMMON.md](../pair-review/COMMON.md)에 있다.
-`<scripts>`는 `~/.claude/skills/pair-review/scripts`다(같은 설치로 둘 다 들어온다).
+띄우기·검증·코멘트 규약·수집은 [../pair-review-shared/SKILL.md](../pair-review-shared/SKILL.md)에 있다(이하 COMMON).
+`<scripts>`는 이 파일 기준 `../pair-review-shared/scripts`다. 그 폴더가 없으면 `pair-review-shared`가 설치되지 않은
+것이다 — `npx skills add socar-chel/pair-review -g -s pair-review-shared`를 안내하고 진행하지 않는다.
 
 ## 전체 흐름
 

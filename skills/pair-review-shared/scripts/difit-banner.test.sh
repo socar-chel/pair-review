@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # difit-banner.sh — 레포·워크트리·브랜치·변경량·시드 개수·PR 줄을 임시 git 레포로 검증한다.
-# 실행: bash skills/pair-review/scripts/difit-banner.test.sh
+# 실행: bash skills/pair-review-shared/scripts/difit-banner.test.sh
 set -u
 SC="$(cd "$(dirname "$0")" && pwd)/difit-banner.sh"
 T=$(mktemp -d); trap 'rm -rf "$T"' EXIT

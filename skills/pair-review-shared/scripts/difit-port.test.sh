@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # difit-port.sh — 해시 경로·배정 파일 우선·스택 오프셋·폴백을 임시 git 레포로 검증한다.
-# 실행: bash skills/pair-review/scripts/difit-port.test.sh
+# 실행: bash skills/pair-review-shared/scripts/difit-port.test.sh
 set -u
 SC="$(cd "$(dirname "$0")" && pwd)/difit-port.sh"
 T=$(mktemp -d); trap 'rm -rf "$T"' EXIT

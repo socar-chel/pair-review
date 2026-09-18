@@ -1,10 +1,17 @@
+---
+name: pair-review-shared
+description: pair-review·pair-review-pr 두 스킬의 공통부 — difit 띄우기·검증, 포트, URL 카드, 브라우저, 코멘트 규약, 수집 마커, 창 이상 대응과 스크립트. 직접 호출하지 않는다 — 두 스킬이 이 문서를 가리키고 scripts/를 쓴다.
+---
+
 # pair-review 공통 — difit 띄우기 · 검증 · 코멘트 규약 · 수집
 
 `pair-review`(내 브랜치)와 `pair-review-pr`(남의 PR)이 똑같이 하는 부분이다. 각 SKILL.md는 다른
 부분만 적고 여기를 가리킨다. 플래그·API는 difit v5.0.8~5.0.12에서 실측한 것이다 — difit 사용법이
 갱신되면 upstream `difit` 스킬의 SKILL.md를 먼저 읽고 여기를 맞춘다.
 
-`<scripts>`는 `~/.claude/skills/pair-review/scripts`다(둘 다 이 하나를 쓴다).
+`<scripts>`는 이 문서와 같은 디렉터리의 `scripts/`다. 두 스킬 모두 자기 SKILL.md 기준
+`../pair-review-shared/scripts`로 온다 — 전역(`~/.claude/skills/`)이든 프로젝트(`.claude/skills/`)든 형제 폴더라
+같은 상대경로가 선다. 절대경로를 적지 않는다.
 
 ## 명령
 

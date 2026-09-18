@@ -7,8 +7,9 @@ description: 내 브랜치를 PR 올리기 전에 에이전트와 페어로 리�
 
 내 변경을 사람이 브라우저에서 보며 코멘트를 달고, 에이전트가 판단해 고치고, 다시 보는 **왕복 루프**다.
 화면은 difit(로컬 diff 뷰어)이고 difit은 고치지 않는다 — 루프 동안 고치는 것은 리뷰 대상 코드다.
-띄우기·검증·코멘트 규약·수집은 [COMMON.md](COMMON.md)에 있다. 이 문서는 그 위의 루프만 적는다.
-`<scripts>`는 이 스킬의 `scripts/` 디렉터리다.
+띄우기·검증·코멘트 규약·수집은 [../pair-review-shared/SKILL.md](../pair-review-shared/SKILL.md)에 있다(이하 COMMON). 이 문서는 그 위의
+루프만 적는다. `<scripts>`는 이 파일 기준 `../pair-review-shared/scripts`다. 그 폴더가 없으면 `pair-review-shared`가
+설치되지 않은 것이다 — `npx skills add socar-chel/pair-review -g -s pair-review-shared`를 안내하고 진행하지 않는다.
 
 내 PR이 이미 올라간 뒤라도 **고치면서 볼 거면 이 스킬**이다(HEAD vs base 루프라 커밋이 PR 브랜치에 쌓일
 뿐이다). 남의 PR을 읽고 리뷰 초안을 낼 거면 `pair-review-pr`.

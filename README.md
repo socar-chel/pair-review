@@ -14,6 +14,8 @@ diff 뷰어)이고, difit은 고치지 않는다 — 어떻게 부르고, 무엇
 npx skills add socar-chel/pair-review -g
 ```
 
+스킬 셋이 한 벌로 들어온다 — `pair-review`·`pair-review-pr`과, 둘이 함께 쓰는 공통부 `pair-review-shared`(띄우기·검증·
+코멘트 규약·스크립트. 직접 호출하지 않는다). `-s`로 한쪽만 고르면 `shared`가 빠져 동작하지 않는다.
 설정은 없다. 설치 후 Claude Code에서 `/pair-review <base>` 또는 "PR 준비하자", `/pair-review-pr <n>` 또는 "이 PR 같이 봐줘"로
 호출한다. Node ≥ 21이면 difit은 `npx`로 알아서 받는다.
 
@@ -100,26 +102,31 @@ npx skills add socar-chel/pair-review -g
 ```
 skills/
 ├── pair-review/
-│   ├── SKILL.md                  내 브랜치 루프 — 셀프리뷰 시드 → 코멘트 → 반영 커밋 → 이월 ⟲ · 스택 PR 모드
-│   ├── COMMON.md                 두 스킬 공통 — 띄우기·검증 · 포트 · 코멘트 규약 · 수집 마커 · 창 이상
-│   └── scripts/                  의존성 없음 (pair-review-pr 도 이것을 쓴다)
-│       ├── diff-lines.mjs        diff 파서 (아래 둘이 공유 · git 설정에 안 흔들리게 diff를 뽑는다)
-│       ├── first-added-line.mjs  diff에서 파일별 첫 + 줄 → 코멘트 앵커
-│       ├── carry-comments.mjs    커밋으로 끊긴 스레드를 새 diff로 이월 (+ 스레드별 답변 잇기)
-│       ├── pending-threads.mjs   마지막 메시지가 사용자 것인 스레드만 — 답할 질문 목록
-│       ├── difit-port.sh         origin 레포명 → 5100~5890 사이 10의 배수 포트 (배정 파일이 우선)
-│       ├── difit-banner.sh       URL과 함께 붙이는 카드 — 작업 요약 · 리포 · 브랜치 → base · 변경량 · 시드 개수
-│       ├── difit-browser.sh      창을 어떻게 여나 — 배정 파일 한 줄(link | agent-browser), 없으면 한 번 묻고 저장
-│       └── difit-health-check.sh 창이 이상할 때 프로세스 · 포트별 /api/diff
-└── pair-review-pr/
-    └── SKILL.md                  남의 PR 루프 (워크트리 → 지적·투어 시드 → 질문/메모 답글 → 리뷰 초안)
+│   └── SKILL.md                  내 브랜치 루프 — 셀프리뷰 시드 → 코멘트 → 반영 커밋 → 이월 ⟲ · 스택 PR 모드
+├── pair-review-pr/
+│   └── SKILL.md                  남의 PR 루프 (워크트리 → 지적·투어 시드 → 질문/메모 답글 → 리뷰 초안)
+└── pair-review-shared/           두 스킬이 ../pair-review-shared/ 로 참조. 직접 호출하지 않는다
+    ├── SKILL.md                  공통 절차 — 띄우기·검증 · 포트 · 카드 · 브라우저 · 코멘트 규약 · 수집 마커 · 창 이상
+    └── scripts/                  의존성 없음
+        ├── diff-lines.mjs        diff 파서 (아래 둘이 공유 · git 설정에 안 흔들리게 diff를 뽑는다)
+        ├── first-added-line.mjs  diff에서 파일별 첫 + 줄 → 코멘트 앵커
+        ├── carry-comments.mjs    커밋으로 끊긴 스레드를 새 diff로 이월 (+ 스레드별 답변 잇기)
+        ├── pending-threads.mjs   마지막 메시지가 사용자 것인 스레드만 — 답할 질문 목록
+        ├── difit-port.sh         origin 레포명 → 5100~5890 사이 10의 배수 포트 (배정 파일이 우선)
+        ├── difit-banner.sh       URL과 함께 붙이는 카드 — 작업 요약 · 리포 · 브랜치 → base · 변경량 · 시드 개수
+        ├── difit-browser.sh      창을 어떻게 여나 — 배정 파일 한 줄(link | agent-browser), 없으면 한 번 묻고 저장
+        └── difit-health-check.sh 창이 이상할 때 프로세스 · 포트별 /api/diff
 ```
 
+공통부를 셋째 스킬로 둔 이유 — 스킬 설치 도구는 폴더 하나를 스킬 하나로 보고 스킬 사이의 의존을 모른다.
+한 스킬 폴더 안에 공통부를 넣고 다른 스킬이 빌려 쓰면 "어느 쪽이 본체인가"가 암묵이 되고, 갱신 감지(폴더별 해시)도
+엉뚱한 스킬이 바뀐 것으로 보인다. 공통부에 이름을 주면 둘이 대등해지고 공통부의 변경은 공통부의 변경으로 보인다.
+
 ```bash
-node --test skills/pair-review/scripts/*.test.mjs
-bash skills/pair-review/scripts/difit-port.test.sh
-bash skills/pair-review/scripts/difit-banner.test.sh
-bash skills/pair-review/scripts/difit-browser.test.sh
+node --test skills/pair-review-shared/scripts/*.test.mjs
+bash skills/pair-review-shared/scripts/difit-port.test.sh
+bash skills/pair-review-shared/scripts/difit-banner.test.sh
+bash skills/pair-review-shared/scripts/difit-browser.test.sh
 ```
 
 ## 선택 사항
