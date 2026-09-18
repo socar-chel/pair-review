@@ -19,7 +19,11 @@ while [ $# -gt 0 ]; do
     *) echo "unknown arg: $1" >&2; exit 2 ;;
   esac
 done
-[ -n "$port" ] && [ -n "$base" ] || { echo "usage: difit-banner.sh --port <p> --base origin/<base> [--comments f] [--pr n]" >&2; exit 2; }
+[ -n "$port" ] && [ -n "$base" ] || { echo "usage: difit-banner.sh --port <p> --base origin/<base> [--summary s] [--comments f] [--pr n]" >&2; exit 2; }
+git rev-parse --verify -q "$base^{commit}" >/dev/null || { echo "base 없음: $base (fetch 했나?)" >&2; exit 2; }
+# --comments를 줬는데 못 읽으면 0으로 찍지 않는다 — "시드 없음"과 "파일 잘못 줌"이 같은 카드가 되면 안 된다.
+[ -z "$comments" ] || [ -r "$comments" ] || { echo "comments 파일 없음: $comments" >&2; exit 2; }
+cell() { printf '%s' "$1" | sed 's/|/\\|/g'; }   # 표 칸 안의 | 는 셀 구분자로 읽힌다
 
 # 레포: origin의 owner/name. 워크트리 이름은 안 적는다 — 브랜치에서 파생된 이름이라 브랜치 줄과 겹친다.
 repo=$(git remote get-url origin 2>/dev/null | sed -E 's#/*$##; s#\.git$##; s#^.*[:/]([^/]+/[^/]+)$#\1#')
@@ -40,15 +44,15 @@ commits=$(git rev-list --count "$base..HEAD" 2>/dev/null || echo 0)
 
 echo "| 🔍 difit | http://localhost:$port |"
 echo "| --- | --- |"
-echo "| 작업 | ${summary:-—} |"
+echo "| 작업 | $(cell "${summary:-—}") |"
 echo "| 리포 | \`$repo\` |"
 if [ -n "$pr" ]; then
   title=$(gh pr view "$pr" --json title -q .title 2>/dev/null)
-  echo "| PR | #$pr${title:+ $title} |"
+  echo "| PR | #$pr${title:+ $(cell "$title")} |"
 fi
-echo "| 브랜치 | \`$branch\` → \`$base\` |"
+echo "| 브랜치 | \`$(cell "$branch")\` → \`$base\` |"
 echo "| 변경 | $files files · +$add −$del · $commits commits |"
-if [ -n "$comments" ] && [ -r "$comments" ]; then
+if [ -n "$comments" ]; then
   python3 - "$comments" <<'PY'
 import json, sys
 threads = json.load(open(sys.argv[1]))
