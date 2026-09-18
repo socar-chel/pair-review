@@ -109,6 +109,7 @@ skills/
 │       ├── pending-threads.mjs   마지막 메시지가 사용자 것인 스레드만 — 답할 질문 목록
 │       ├── difit-port.sh         origin 레포명 → 5100~5890 사이 10의 배수 포트 (배정 파일이 우선)
 │       ├── difit-banner.sh       URL과 함께 붙이는 카드 — 작업 요약 · 리포 · 브랜치 → base · 변경량 · 시드 개수
+│       ├── difit-browser.sh      창을 어떻게 여나 — 배정 파일 한 줄(link | agent-browser), 없으면 한 번 묻고 저장
 │       └── difit-health-check.sh 창이 이상할 때 프로세스 · 포트별 /api/diff
 └── pair-review-pr/
     └── SKILL.md                  남의 PR 루프 (워크트리 → 지적·투어 시드 → 질문/메모 답글 → 리뷰 초안)
@@ -118,12 +119,15 @@ skills/
 node --test skills/pair-review/scripts/*.test.mjs
 bash skills/pair-review/scripts/difit-port.test.sh
 bash skills/pair-review/scripts/difit-banner.test.sh
+bash skills/pair-review/scripts/difit-browser.test.sh
 ```
 
 ## 선택 사항
 
 - **PR 전 강제** — CLAUDE.md에 `- PR을 만들기 전에 /pair-review 로 사용자 리뷰를 받는다.`
 - **포트 직접 지정** — `~/.config/pair-review/ports`에 `<레포명>=<포트>` 한 줄씩. 스크립트가 해시보다 먼저 읽는다(10의 배수로).
+- **창을 누가 여나** — `~/.config/pair-review/browser`에 `link`(URL만 안내, 사용자가 연다) 또는 `agent-browser`(에이전트가
+  headed 창을 띄우고 닫는다). 없으면 첫 실행 때 한 번 묻고 저장한다.
 - **다른 에이전트** — 절차는 셸 명령과 규칙뿐이라 AGENTS.md 등에 SKILL.md 내용을 옮기면 된다.
 
 실측 기준 difit v5.0.12. upstream `difit`·`difit-review` 스킬(`npx skills add yoshiko-pg/difit`)은 단발 실행을
