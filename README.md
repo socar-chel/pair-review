@@ -61,6 +61,7 @@ npx skills add socar-chel/pair-review -g
 | 포트가 조용히 +1로 밀려 옛 탭을 보게 된다 | 레포 이름에서 포트를 계산하고(`difit-port.sh`), 실제 포트를 JSON에서 읽는다 |
 | 에이전트가 단 스레드가 엉뚱한 줄에 붙거나 안 보인다 | `first-added-line.mjs`로 `+` 줄만 앵커로 쓴다 |
 | 창을 여럿 띄우면 어느 레포·브랜치·base인지 화면만 보고는 모른다 | URL을 카드(`difit-banner.sh` — 작업 요약 · 리포 · 브랜치 → base · 변경량 · 시드)와 함께 줘 대화창이 제목 표시줄이 된다 |
+| 셀프리뷰가 모델 기분에 좌우된다 — 세션마다 잡는 것이 다르다 | **두 트랙** — `/code-review`(결함)와 standards sources(`REVIEW.md` → `CONTRIBUTING.md` → 개인 체크리스트 배정 파일)를 한 diff에 겹쳐 보고, 반박 패스로 거른 뒤 `snap-anchor.mjs`로 `+` 줄에만 붙인다. 실측에서 두 트랙이 잡은 것이 하나도 겹치지 않았다 |
 | 같은 스레드를 라운드마다 다시 처리하거나, 처리한 것을 놓친다 | "마지막 메시지가 내 것인가"를 마커로 쓴다(`pending-threads.mjs`) — 이월 스레드는 답변을 이어 붙여 에이전트 저자로 다시 올린다 |
 
 ## 반대 방향 — `pair-review-pr`
@@ -111,12 +112,15 @@ skills/
     ├── SKILL.md                  공통 절차 — 띄우기·검증 · 포트 · 카드 · 브라우저 · 코멘트 규약 · 수집 마커 · 창 이상
     └── scripts/                  의존성 없음
         ├── diff-lines.mjs        diff 파서 (아래 둘이 공유 · git 설정에 안 흔들리게 diff를 뽑는다)
-        ├── first-added-line.mjs  diff에서 파일별 첫 + 줄 → 코멘트 앵커
+        ├── first-added-line.mjs  diff에서 파일별 첫 + 줄 → 코멘트 앵커 (투어·설명 스레드)
+        ├── snap-anchor.mjs       셀프리뷰 findings의 줄을 가장 가까운 + 줄로 (멀면 far: 로 탈락 — 파일 맨 위로 튀지 않게)
         ├── carry-comments.mjs    커밋으로 끊긴 스레드를 새 diff로 이월 (+ 스레드별 답변 잇기)
         ├── pending-threads.mjs   마지막 메시지가 사용자 것인 스레드만 — 답할 질문 목록
         ├── difit-port.sh         origin 레포명 → 5100~5890 사이 10의 배수 포트 (배정 파일이 우선)
         ├── difit-banner.sh       URL과 함께 붙이는 카드 — 작업 요약 · 리포 · 브랜치 → base · 변경량 · 시드 개수
         ├── difit-browser.sh      창을 어떻게 여나 — 배정 파일 한 줄(link | agent-browser), 없으면 한 번 묻고 저장
+        ├── difit-checklist.sh    셀프리뷰 트랙 B의 개인 기준 — 배정 파일의 경로 중 존재하는 것만 (없으면 조용히 건너뜀)
+        ├── skills-lint.test.mjs  세 스킬 frontmatter 규격 검사 (name = 디렉터리명 · description ≤ 1024 · shared 플래그 · 경로)
         └── difit-health-check.sh 창이 이상할 때 프로세스 · 포트별 /api/diff
 ```
 
@@ -129,6 +133,8 @@ node --test skills/pair-review-shared/scripts/*.test.mjs
 bash skills/pair-review-shared/scripts/difit-port.test.sh
 bash skills/pair-review-shared/scripts/difit-banner.test.sh
 bash skills/pair-review-shared/scripts/difit-browser.test.sh
+bash skills/pair-review-shared/scripts/difit-checklist.test.sh
+bash skills/pair-review-shared/scripts/snap-anchor.cli.test.sh
 ```
 
 ## 선택 사항
@@ -137,6 +143,9 @@ bash skills/pair-review-shared/scripts/difit-browser.test.sh
 - **포트 직접 지정** — `~/.config/pair-review/ports`에 `<레포명>=<포트>` 한 줄씩. 스크립트가 해시보다 먼저 읽는다(10의 배수로).
 - **창을 누가 여나** — `~/.config/pair-review/browser`에 `link`(URL만 안내, 사용자가 연다) 또는 `agent-browser`(에이전트가
   headed 창을 띄우고 닫는다). 없으면 첫 실행 때 한 번 묻고 저장한다.
+- **내 리뷰 기준** — `~/.config/pair-review/checklist`에 체크리스트 파일 경로를 한 줄씩. 셀프리뷰 트랙 B가 repo의
+  `REVIEW.md`·`CONTRIBUTING.md` 다음으로 읽는다. 없으면 묻지 않고 건너뛴다. 팀 룰은 여기가 아니라 repo `CLAUDE.md`·
+  `.claude/rules/`(경로별 `paths:`)에 두면 세션과 `/code-review` 양쪽이 읽는다.
 - **다른 에이전트** — 절차는 셸 명령과 규칙뿐이라 AGENTS.md 등에 SKILL.md 내용을 옮기면 된다.
 
 실측 기준 difit v5.0.12. upstream `difit`·`difit-review` 스킬(`npx skills add yoshiko-pg/difit`)은 단발 실행을
