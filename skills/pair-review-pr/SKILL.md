@@ -18,7 +18,7 @@ compatibility: Claude Code. git, gh, Node ≥ 21 (npx difit)
 
 띄우기·검증·코멘트 규약·수집은 [../pair-review-shared/SKILL.md](../pair-review-shared/SKILL.md)에 있다(이하 COMMON).
 `<scripts>`는 `${CLAUDE_SKILL_DIR}/../pair-review-shared/scripts`다. 그 폴더가 없으면 `pair-review-shared`가 설치되지 않은
-것이다 — `npx skills add socar-chel/pair-review -g -s pair-review-shared`를 안내하고 진행하지 않는다.
+것이다 — `npx skills add socar-chel/pair-review -s pair-review-shared`를 **설치한 스코프와 같게**(전역이면 `-g`, 프로젝트면 `-p`) 안내하고 진행하지 않는다.
 
 ## 전체 흐름
 
