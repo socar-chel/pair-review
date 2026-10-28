@@ -87,21 +87,23 @@ node <scripts>/pending-threads.mjs < old.json
 커밋 뒤 답변을 붙일 때는 `reply`가 아니라 **새 `thread`로, 바뀐 줄 번호에** 올린다(옛 세션이 비어
 `reply`는 매칭 스레드를 못 찾는다).
 
-1. **`GET /api/diff`의 `target`이 새 SHA로 바뀐 것을 먼저 확인한다.** 커밋 직후에는 서버가 잠깐 옛
-   target을 쥐고 있어 `add`가 옛 세션에 붙어 "살아 있는 것처럼" 보이다가 몇 초 뒤 0건이 된다.
-2. 미해결 스레드를 새 diff의 유효한 앵커로 옮기고 5단계의 답변을 잇는다. 본문은 원문 → 사용자 답글(`> ` 인용)
+1. 미해결 스레드를 새 diff의 유효한 앵커로 옮기고 5단계의 답변을 잇는다. 본문은 원문 → 사용자 답글(`> ` 인용)
    → `answers.json`의 답변 순서로 한 스레드가 되고, author는 전부 `claude`다(이월은 에이전트의 게시다 —
    사용자 저자를 유지하면 `pending-threads.mjs`가 그 스레드를 다음 라운드에 다시 잡는다):
    ```bash
    node <scripts>/carry-comments.mjs old.json origin/<base>...HEAD --answers answers.json > new.json
-   npx difit comment add --port <port> "$(cat new.json)"
+   node <scripts>/difit-add.mjs --port <port> new.json
    ```
    앵커 규칙 — 옛 줄이 아직 `+` 줄이면 유지, 아니면 그 파일에서 옛 줄 뒤 첫 `+` 줄, 그것도 없으면 파일의 첫
    `+` 줄(stderr `moved:`). 파일이 새 diff에서 사라졌으면 `skip:`으로 알리고 빠진다 — 그 스레드의 답변은
    채팅으로 전한다. 범위 앵커는 `start` 한 줄로, `old` 측 앵커는 `new` 측으로 바뀐다(삭제된 줄은 새 diff에서
    다시 가리킬 수 없다). `answers.json`의 id가 `old.json`에 없으면 stderr로 알린다 — 오타를 그 자리에서 잡는다.
-3. 올린 뒤 `comment get`으로 `filePath:line`이 의도한 자리인지, `add` 응답의 `count`·`warnings`가 맞는지
-   확인하고, 사용자에게 "탭을 새로고침해 주세요"로 안내한다.
+2. **올리기는 `comment add`가 아니라 `difit-add.mjs`로 한다.** `comment add`는 서버가 *지금 보는* 세션에 넣는데,
+   커밋 직후 몇 초는 서버가 옛 target을 쥐고 있어 스레드가 옛 세션에 붙는다 — 응답은 성공인데 새로고침하면 비어
+   있다(실측). `difit-add.mjs`는 세션 키(base·target=HEAD 앞 7자·baseMode)를 명시해 새 커밋의 세션에 직접 넣고,
+   같은 키로 다시 읽어 스레드마다 붙었는지 확인한다. rc 1이면 stderr의 `missing:`·`warnings:`를 보고 고친다.
+   `note:`(서버가 아직 옛 target)는 정상이다 — 서버가 넘어가면 보인다.
+3. 사용자에게 "탭을 새로고침해 주세요"로 안내한다.
 4. 추가 코멘트가 있으면 3~6단계를 반복한다. 사용자가 승인("OK")하면 7단계로.
 
 ## 7단계 — 종료

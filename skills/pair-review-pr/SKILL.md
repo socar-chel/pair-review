@@ -105,12 +105,12 @@ npx difit comment add --port $P '[{"type":"reply","author":"claude","filePath":"
 ## 4단계 — PR에 새 커밋이 올라왔을 때
 
 워크트리에서 `git pull`(PR 브랜치)하면 파일 감시가 화면을 갱신하지만 **target이 바뀌어 코멘트 세션이 빈다**
-(`pair-review` 4단계와 같다). 이때만 이월이 필요하다:
+(`pair-review` 4단계와 같다). 이때만 이월이 필요하고, 올리기는 `difit-add.mjs`로 한다(이유는 `pair-review` 6단계 2번):
 
 ```bash
 npx difit comment get --port $P --format json > old.json     # pull 전에
 git pull
-node <scripts>/carry-comments.mjs old.json origin/<base>...HEAD > new.json && npx difit comment add --port $P "$(cat new.json)"
+node <scripts>/carry-comments.mjs old.json origin/<base>...HEAD > new.json && node <scripts>/difit-add.mjs --port $P new.json
 ```
 
 이월된 스레드는 author가 전부 `claude`가 되므로 `pending-threads.mjs`가 더는 잡지 않는다 — **pull 전에 답하지

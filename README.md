@@ -55,7 +55,7 @@ npx skills add socar-chel/pair-review -g
 
 | 그냥 띄우면 | 이 스킬은 |
 | --- | --- |
-| 커밋을 하나 쌓는 순간 코멘트 스레드가 **빈 세션**이 된다 — 세션 키가 base+target 커밋 쌍이라 | 커밋 **전에** 수집하고, `carry-comments.mjs`로 새 diff의 맞는 줄에 다시 올린다 |
+| 커밋을 하나 쌓는 순간 코멘트 스레드가 **빈 세션**이 된다 — 세션 키가 base+target 커밋 쌍이라 | 커밋 **전에** 수집하고, `carry-comments.mjs`로 새 diff의 맞는 줄을 잡아 `difit-add.mjs`로 **새 커밋의 세션에** 다시 올린다 |
 | 원격 base가 전진해 있으면 남의 머지분이 diff에 섞인다 | `--merge-base`로 고정하고 기동 직후 `/api/diff`와 git을 대조한다 |
 | 브라우저 창을 닫으면 서버와 메모리의 코멘트가 함께 죽는다 | `--keep-alive` — 탭을 닫아도 서버는 산다 |
 | 포트가 조용히 +1로 밀려 옛 탭을 보게 된다 | 레포 이름에서 포트를 계산하고(`difit-port.sh`), 실제 포트를 JSON에서 읽는다 |
@@ -115,6 +115,7 @@ skills/
         ├── first-added-line.mjs  diff에서 파일별 첫 + 줄 → 코멘트 앵커 (투어·설명 스레드)
         ├── snap-anchor.mjs       셀프리뷰 findings의 줄을 가장 가까운 + 줄로 (멀면 far: 로 탈락 — 파일 맨 위로 튀지 않게)
         ├── carry-comments.mjs    커밋으로 끊긴 스레드를 새 diff로 이월 (+ 스레드별 답변 잇기)
+        ├── difit-add.mjs         스레드를 새 커밋의 세션에 직접 올리고 다시 읽어 확인 (커밋 직후 옛 세션에 붙는 것을 막는다)
         ├── pending-threads.mjs   마지막 메시지가 사용자 것인 스레드만 — 답할 질문 목록
         ├── difit-port.sh         origin 레포명 → 5100~5890 사이 10의 배수 포트 (배정 파일이 우선)
         ├── difit-banner.sh       URL과 함께 붙이는 카드 — 작업 요약 · 리포 · 브랜치 → base · 변경량 · 시드 개수
