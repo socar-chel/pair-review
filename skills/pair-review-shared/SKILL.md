@@ -232,6 +232,9 @@ A는 문서 속 복구 명령의 스코프 오류를, B는 빠진 테스트를 �
 - **토큰·비밀번호·API 키 등 자격증명은 body에 옮겨 적지 않는다** — 명령줄 인자로도 남는다.
 - `type: "reply"`는 매칭 스레드가 없으면 에러가 아니라 `success: true`에 `warnings: ["Skipped reply import
   for <path>:new:<line> …"]`로 온다 — `add` 응답의 `count`와 `warnings`를 반드시 본다.
+- **커밋 뒤에 올릴 때는 `node <scripts>/difit-add.mjs --port <port> <payload.json>`** — `comment add`는 서버가 지금 보는
+  세션에 넣어서, 커밋 직후 몇 초 동안은 옛 세션에 붙는다(`pair-review` 6단계 2번). 이 스크립트는 세션 키를 쿼리로 명시하고
+  다시 읽어 확인한다.
 - CLI를 못 쓰면 `POST /api/comment-imports`가 같은 일을 한다. `POST /api/comments`와 혼동하지 말 것 —
   그쪽은 스레드 목록을 통째로 교체한다. 같은 코멘트를 다시 보내면 difit이 건너뛴다(멱등).
 
