@@ -93,7 +93,7 @@ npx difit comment get --port $P --format json | node <scripts>/pending-threads.m
   보강해 `→ 확인:`으로, 틀리거나 이미 처리된 것이면 `→ 반론:`으로 어디서 처리되는지 인용해 답한다. 맞는 지적은
   5단계 리뷰 초안에 들어간다.
 
-답변은 `type: reply`로 같은 스레드에, 사용자의 언어로. 한 스레드에 질문이 둘이면 번호를 붙여 둘 다 답한다.
+답변은 `type: reply`로 같은 스레드에, 사용자의 언어로, COMMON 「코멘트 문장」대로. 한 스레드에 질문이 둘이면 번호를 붙여 둘 다 답한다.
 
 ```bash
 npx difit comment add --port $P '[{"type":"reply","author":"claude","filePath":"<path>","position":{"side":"new","line":<line>},"body":"…"}]'
@@ -124,6 +124,8 @@ node <scripts>/carry-comments.mjs old.json origin/<base>...HEAD > new.json && np
      근거(`path:line`)
    - ❓ **작성자에게 물을 것** — `→ 작성자` 표시가 붙은 스레드
    - 판정 제안 — approve / request changes / comment 중 하나와 이유 한 줄. 결정은 사용자가 한다.
+
+   지적·질문은 작성자에게 게시될 문면이다 — COMMON 「코멘트 문장」대로 사실을 다시 검증한 뒤 다듬어 낸다.
    여기까지가 이 스킬의 일이다. **게시는 하지 않는다.** 원하면 `gh pr review <n> --comment --body-file <초안>`
    한 줄을 안내한다(인라인 코멘트로 올리려면 사용자의 GitHub 리뷰 절차로).
 2. COMMON 「종료」대로 서버를 끝낸다(`agent-browser`로 열었으면 창도). 워크트리는 사용자에게 확인하고 `git worktree remove`.
